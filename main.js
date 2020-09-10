@@ -1,7 +1,17 @@
+const MAX_ENEMIES = 7;
+
 const score = document.querySelector('.score'),
   start = document.querySelector('.start'),
   gameArea = document.querySelector('.gameArea'),
   car = document.createElement('div');
+
+const audio = document.createElement('embed');
+audio.src = 'audio.mp3';
+audio.type = 'audio/mp3';
+audio.style.cssText = `
+  position: absolute;
+  top: -100px;
+`;
 
 car.classList.add('car');
 start.addEventListener('click', startGame);
@@ -39,18 +49,19 @@ function startGame() {
 
   for (let i = 0; i < getQuantityElements(100 * setting.traffic); i++) {
     const enemy = document.createElement('div');
+    const randomEnemy = Math.floor(Math.random() * MAX_ENEMIES) + 1;
     enemy.classList.add('enemy');
     enemy.y = -100 * setting.traffic * (i + 1);
     enemy.style.left =
       Math.floor(Math.random() * (gameArea.offsetWidth - 50)) + 'px';
     enemy.style.top = enemy.y + 'px';
-    enemy.style.background =
-      "transparent url('img/enemy.png') center/cover no-repeat";
-    gameArea.appendChild(enemy);
+    enemy.style.background = `transparent url('img/enemy${randomEnemy}.png') center/cover no-repeat`;
+    gameArea.append(enemy);
   }
   setting.score = 0;
   setting.start = true;
-  gameArea.appendChild(car);
+  gameArea.append(car);
+  gameArea.append(audio);
   car.style.left = gameArea.offsetWidth / 2 - car.offsetWidth / 2;
   car.style.top = 'auto';
   car.style.bottom = '10px';
@@ -89,13 +100,17 @@ function playGame() {
 }
 
 function startRun(event) {
-  event.preventDefault();
-  keys[event.key] = true;
+  if (keys.hasOwnProperty(event.key)) {
+    event.preventDefault();
+    keys[event.key] = true;
+  }
 }
 
 function stopRun(event) {
-  event.preventDefault();
-  keys[event.key] = false;
+  if (keys.hasOwnProperty(event.key)) {
+    event.preventDefault();
+    keys[event.key] = false;
+  }
 }
 
 function moveRoad() {
@@ -123,6 +138,7 @@ function moveEnemy() {
       setting.start = false;
       start.classList.remove('hide');
       start.style.top = score.offsetHeight;
+      audio.remove();
     }
     item.y += setting.speed / 2;
     item.style.top = item.y + 'px';
